@@ -757,6 +757,27 @@ void update_frequency(RECEIVER *rx) {
   }
 }
 
+/*long long receiver_move_a(RECEIVER *rx,long long hz,gboolean round) {
+  long long delta=0LL;
+  if(!rx->locked) {
+    if(rx->ctun) {
+      delta=rx->ctun_frequency;
+      rx->ctun_frequency=rx->ctun_frequency+hz;
+      if(round && (rx->mode_a!=CWL || rx->mode_a!=CWU)) {
+        rx->ctun_frequency=(rx->ctun_frequency/rx->step)*rx->step;
+      }
+      delta=rx->ctun_frequency-delta;
+    } else {
+      delta=rx->frequency_a;
+      rx->frequency_a=rx->frequency_a-hz; // DEBUG was +
+      if(round && (rx->mode_a!=CWL || rx->mode_a!=CWU)) {
+        rx->frequency_a=(rx->frequency_a/rx->step)*rx->step;
+      }
+      delta=rx->frequency_a-delta;
+    }
+  }
+  return delta;
+}*/
 long long receiver_move_a(RECEIVER *rx,long long hz,gboolean round) {
   long long delta=0LL;
   if(!rx->locked) {
@@ -869,7 +890,8 @@ void receiver_move_to(RECEIVER *rx,long long hz) {
   long long start=(long long)rx->frequency_a-(long long)(rx->sample_rate/2);
   long long offset=hz;
   long long f;
-
+  fprintf(stderr,"receiver_move_to %lld \n",hz );
+  fprintf(stderr,"receiver_move_to %d %d %d \n",rx->split==SPLIT_ON,rx->mode_a==CWL,rx->mode_a==CWU );
   if(!rx->locked) {
     offset=hz;
   
@@ -877,10 +899,18 @@ void receiver_move_to(RECEIVER *rx,long long hz) {
     f=f/rx->step*rx->step;
     if(rx->ctun) {
       delta=rx->ctun_frequency;
+      /* mon ajout */
+      if(rx->mode_a==CWU) {
+          f=f+radio->cw_keyer_sidetone_frequency;
+        } else if (rx->mode_a==CWL) {
+          f=f-radio->cw_keyer_sidetone_frequency;
+        }
+      /* fin ajout */
       rx->ctun_frequency=f;
       delta=rx->ctun_frequency-delta;
     } else {
       if(rx->split==SPLIT_ON && (rx->mode_a==CWL || rx->mode_a==CWU)) {
+        
         if(rx->mode_a==CWU) {
           f=f-radio->cw_keyer_sidetone_frequency;
         } else {
@@ -1076,10 +1106,10 @@ static void set_mode(RECEIVER *rx,int m) {
 
 void set_filter(RECEIVER *rx,int low,int high) {
 //fprintf(stderr,"set_filter: %d %d\n",low,high);
-  if(rx->mode_a==CWL) {
+  if(rx->mode_a==CWU) {
     rx->filter_low_a=-radio->cw_keyer_sidetone_frequency-low;
     rx->filter_high_a=-radio->cw_keyer_sidetone_frequency+high;
-  } else if(rx->mode_a==CWU) {
+  } else if(rx->mode_a==CWL) {
     rx->filter_low_a=radio->cw_keyer_sidetone_frequency-low;
     rx->filter_high_a=radio->cw_keyer_sidetone_frequency+high;
   } else {

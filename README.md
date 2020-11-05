@@ -1,8 +1,11 @@
 # LinHPSDR
 
+Fork from g0orx to try to correct some bugs.
+
+
 ### Development environment
 
-Development and testing has been run on Ubuntu 17.10 and Ubuntu 18.04. If run on early versions there may be a problem with GTK not supporting the gtk_menu_popup_at_pointer function vfo.c. For information on MacOS support see [MacOS.md](./MacOS.md).
+Development and testing has been run on Ubuntu 20.04. 
 
 ### Prerequisites for building
 
