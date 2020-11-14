@@ -1729,7 +1729,20 @@ void update_vfo(RECEIVER *rx) {
   if(v==NULL) return;
 
   // VFO A
-  long long af=rx->ctun?rx->ctun_frequency:rx->frequency_a;
+  //long long af=) ?rx->ctun_frequency:rx->frequency_a;
+  long long af ;
+  if (rx->ctun) {
+     af = rx->ctun_frequency;
+     // correct frequency display in CW modes
+     if(rx->mode_a==CWU) {
+          af-=2*radio->cw_keyer_sidetone_frequency;
+        } else if (rx->mode_a==CWL) {
+          af+=2*radio->cw_keyer_sidetone_frequency;
+        }
+      
+  } else {
+    af = rx->frequency_a;
+  }
   sprintf(temp,"%5lld.%03lld.%03lld",af/(long long)1000000,(af%(long long)1000000)/(long long)1000,af%(long long)1000);
   if(radio!=NULL && radio->transmitter!=NULL && rx==radio->transmitter->rx && radio->transmitter->rx->split==SPLIT_OFF && isTransmitting(radio)) {
     markup=g_markup_printf_escaped("<span foreground=\"#D94545\">%s</span>",temp);

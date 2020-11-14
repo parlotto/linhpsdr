@@ -891,7 +891,7 @@ void receiver_move_to(RECEIVER *rx,long long hz) {
   long long offset=hz;
   long long f;
   fprintf(stderr,"receiver_move_to %lld \n",hz );
-  fprintf(stderr,"receiver_move_to %d %d %d \n",rx->split==SPLIT_ON,rx->mode_a==CWL,rx->mode_a==CWU );
+  fprintf(stderr,"receiver_move_to SPLIT %d CWL %d CWU %d \n",rx->split==SPLIT_ON,rx->mode_a==CWL,rx->mode_a==CWU );
   if(!rx->locked) {
     offset=hz;
   
@@ -936,7 +936,7 @@ void receiver_move_to(RECEIVER *rx,long long hz) {
         receiver_move_b(rx,-delta,TRUE,TRUE);
         break;
     }
-
+    fprintf(stderr,"receiver_move_to %ld \n",rx->ctun_frequency );
     frequency_changed(rx);
     update_frequency(rx);
   }
